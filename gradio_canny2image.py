@@ -17,7 +17,7 @@ from cldm.ddim_hacked import DDIMSampler
 
 apply_canny = CannyDetector()
 
-model = create_model('./models/cldm_v15.yaml').cpu()
+model = create_model('./models/cldm_v15.yaml').cuda()
 model.load_state_dict(load_state_dict('./models/control_sd15_canny.pth', location='cuda'))
 model = model.cuda()
 ddim_sampler = DDIMSampler(model)
@@ -59,7 +59,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
             model.low_vram_shift(is_diffusing=False)
 
         x_samples = model.decode_first_stage(samples)
-        x_samples = (einops.rearrange(x_samples, 'b c h w -> b h w c') * 127.5 + 127.5).cpu().numpy().clip(0, 255).astype(np.uint8)
+        x_samples = (einops.rearrange(x_samples, 'b c h w -> b h w c') * 127.5 + 127.5).cuda().numpy().clip(0, 255).astype(np.uint8)
 
         results = [x_samples[i] for i in range(num_samples)]
     return [255 - detected_map] + results
